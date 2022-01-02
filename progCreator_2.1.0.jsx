@@ -108,22 +108,9 @@
                games.push(nameFormated);
                compTemplate.layer(i).name = nameFormated;
           }
-const activeDays = new Array();
 
-function ActivateDay(button, tab, day) {
-    button.value ? activeDays.push(parseInt(day)) : activeDays.remove(parseInt(day));
-}
+          const activeDays = new Array();
 
-function ChangeLayout (state, day) {
-    state ? activeDays.push(parseInt(day + 7)) : activeDays.remove(parseInt(day + 7));
-}
-
-function TimeRemap(layersCollection) {
-    for (i in layersCollection) {layersCollection[i].expression = null}
-    for (n of activeDays) {
-        // layersCollection[activeDays].expression = ''
-    }
-}
           // Main window UI
           var activationPanel = win.add('panel', undefined, 'Activation')
           activationPanel.orientation = 'row'
@@ -279,7 +266,7 @@ function TimeRemap(layersCollection) {
                });
                tabsObject[i].groupPanels.panelTwo.groupHours.ddHour.addEventListener('change', function (e) {
                     SetHour(e.target, parseInt(e.target.name.slice(0, 1)) + 7)
-               });*
+               });
                tabsObject[i].groupPanels.panelOne.ddCategorie.addEventListener('change', function (e) {
                     SetCategorie(e.target, e.target.selection, e.target.name)
                });
@@ -322,11 +309,15 @@ function TimeRemap(layersCollection) {
 
                //Check button state
                if (!button.value) {
+                    // Add to animation
+                    activeDays.push(parseInt(day))
                     //Enable layers & tab
                     GetTabByName(day.slice(4)).enabled = true;
                     precompMask.layer(parseInt(day.slice(0, 1))).opacity.setValue(0);
                }
                if (button.value) {
+                    // Remove from animation
+                    activeDays.remove(parseInt(day));
                     //Disable layers & tab
                     GetTabByName(day.slice(4)).enabled = false;
                     compPlanning.layer(parseInt(day.slice(0, 1))).effect(1).property(1).setValue(0)
@@ -360,6 +351,7 @@ function TimeRemap(layersCollection) {
                state ? GetTabByName(day.slice(4)).groupPanels.panelTwo.enabled = false : GetTabByName(day.slice(4)).groupPanels.panelTwo.enabled = true;
                state ? precompShapes.layer(parseInt(day.slice(0, 1))).opacity.setValue(100) : precompShapes.layer(parseInt(day.slice(0, 1))).opacity.setValue(0);
                state ? precompHours.layer(parseInt(day.slice(0, 1)) + 7).opacity.setValue(0) : precompHours.layer(parseInt(day.slice(0, 1)) + 7).opacity.setValue(100);
+               state ? activeDays.push(parseInt(day + 7)) : activeDays.remove(parseInt(day + 7));
           }
 
           function OpenComp(dayName) {
@@ -467,6 +459,16 @@ function TimeRemap(layersCollection) {
                     }
                }
                compPlanning.layer(8).text.sourceText.setValue('Planning du ' + day + ' au ' + day2 + ' ' + month.toString());
+          }
+
+          function TimeRemap(layersCollection) {
+               for (i in layersCollection) { layersCollection[i].expression = null }
+               for (n in activeDays) {
+                    var count = 0;
+                    var delay = 9 * count;
+                    count++;
+                    layersCollection[activeDays[n]].expression = 'thisLayer.timeRemap.valueAtTime(time - ' + delay + ')';
+               }
           }
 
           // Handler activation
