@@ -7,7 +7,7 @@
                closeButton: false,
           });
 
-          function BuildDlg(textLayer) {
+          function BuildDlg(textLayer1, textLayer2) {
                // Dialog UI
                var textDlg = new Window('palette', 'Texte', undefined, {
                     resizeable: false
@@ -31,7 +31,7 @@
 
                // FUNCTIONS
                function TextSize(arg) {
-                    var textProp = textLayer.property("Source Text");
+                    var textProp = textLayer1.property("Source Text");
                     var textDocument = textProp.value;
                     var acutalSize = textDocument.fontSize
                     arg ? textDocument.fontSize = acutalSize + 1 : textDocument.fontSize = acutalSize - 1;
@@ -39,23 +39,31 @@
                }
 
                function TextFont(typo) {
-                    var textProp = textLayer.property("Source Text");
-                    var textDocument = textProp.value;
-                    textDocument.font = typo;
-                    textProp.setValue(textDocument);
+                    var textProp1 = textLayer1.property("Source Text");
+                    var textDocument1 = textProp1.value;
+                    textDocument1.font = typo;
+                    textProp1.setValue(textDocument1);
+
+                    var textProp2 = textLayer2.property("Source Text");
+                    var textDocument2 = textProp2.value;
+                    textDocument2.font = typo;
+                    textProp2.setValue(textDocument2);
                }
 
                function TextValue(userInput) {
-                    var textProp = textLayer.property("Source Text");
-                    var textDocument = textProp.value;
-                    textDocument.text = userInput;
-                    textProp.setValue(textDocument);
+                    var textProp1 = textLayer1.property("Source Text");
+                    var textDocument1 = textProp1.value;
+                    textDocument1.text = userInput;
+                    textProp1.setValue(textDocument1);
+
+                    var textProp2 = textLayer2.property("Source Text");
+                    var textDocument2 = textProp2.value;
+                    textDocument2.text = userInput;
+                    textProp2.setValue(textDocument2);
                }
 
                function RepositionAnchorPoint(layer) {
-                    $.writeln(layer.name == 'Texte personnalisé 1')
                     var layerAnchor = layer.anchorPoint.value;
-                    $.writeln(parseInt(layerAnchor[0]) + '\n' + parseInt(layerAnchor[1]))
                     /* find center by bounding box of the layer */
                     var x = layer.sourceRectAtTime(0, false).width / 2;
                     var y = layer.sourceRectAtTime(0, false).height / 2;
@@ -75,15 +83,15 @@
                });
                ddTypo.addEventListener('change', function (e) {
                     TextFont(e.target.selection.toString());
-                    RepositionAnchorPoint(textLayer);
+                    RepositionAnchorPoint(textLayer1);
                });
                buttonUp.addEventListener('mousedown', function (e) {
                     TextSize(true);
-                    RepositionAnchorPoint(textLayer);
+                    RepositionAnchorPoint(textLayer1);
                });
                buttonDown.addEventListener('mousedown', function (e) {
                     TextSize(false);
-                    RepositionAnchorPoint(textLayer);
+                    RepositionAnchorPoint(textLayer1);
                });
                textDlg.show();
           }
@@ -327,12 +335,14 @@
                }
           }
 
-          function SetCategorie(dd, selection, dayName) {
-               const layer = GetCompByName(dayName).layers.byName(selection)
+          function SetCategorie(dd, selection, compName) {
+               const layer1 = GetCompByName(compName).layers.byName(selection);
+               const layer2 = GetCompByName(compName + ' - Animated').layers.byName(selection);
                if (selection.toString() == 'Texte personnalisé' || selection.toString() == 'Texte personnalisé 2' || selection.toString() == 'Texte personnalisé 3') {
-                    BuildDlg(layer);
+                    BuildDlg(layer1, layer2);
                }
-               layer.moveToBeginning();
+               layer1.moveToBeginning();
+               layer2.moveToBeginning();
           }
 
           function SetHour(dd, dayNumber) {
